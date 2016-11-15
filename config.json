@@ -1,0 +1,4 @@
+{
+  "networkModelPath": "/home/ludger/Projekte/openface/models/openface/nn4.small2.v1.t7",
+  "dlibFacePredictorPath": "/home/ludger/Projekte/openface/models/dlib/shape_predictor_68_face_landmarks.dat"
+}
