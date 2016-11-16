@@ -29,9 +29,9 @@ MODEL_PATH_KEY = 'networkModelPath'
 
 class NeuralNetworkTools:
     def __init__(self):
-        # Load the path to dlib from concfig
-        dlib_face_predictor_directory = tools.load_key_from_config(DLIB_PATH_KEY)
-        # self.align = openface.AlignDlib(dlib_face_predictor_directory)
+        # Load the path to dlib from config
+        dlib_face_predictor_directory = tools.load_key_from_config(DLIB_PATH_KEY).encode('ascii', 'ignore')
+        self.align = openface.AlignDlib(dlib_face_predictor_directory)
 
         # Load the path to the model from config and load the model
         network_model_directory = tools.load_key_from_config(MODEL_PATH_KEY)
@@ -54,19 +54,19 @@ class NeuralNetworkTools:
         d = rep1 - rep2
         return np.dot(d, d)
 
-        # def align_face(self, img):
-        #     """
-        #     Aligns a face found in an image and crops it to 96x96
-        #     :param img:
-        #     :return: The aligned image
-        #     """
-        #
-        #     bb = self.align.getLargestFaceBoundingBox(img)
-        #     if bb is None:
-        #         raise Exception("Unable to find a face!")
-        #
-        #     aligned_face = align.align(IMAGE_DIM, img, bb, landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
-        #     if aligned_face is None:
-        #         raise Exception("Unable to align image!")
-        #
-        #     return aligned_face
+    def align_face(self, img):
+        """
+        Aligns a face found in an image and crops it to 96x96
+        :param img:
+        :return: The aligned image
+        """
+
+        bb = self.align.getLargestFaceBoundingBox(img)
+        if bb is None:
+            raise Exception("Unable to find a face!")
+
+        aligned_face = self.align.align(IMAGE_DIM, img, bb, landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
+        if aligned_face is None:
+            raise Exception("Unable to align image!")
+
+        return aligned_face

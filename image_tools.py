@@ -80,6 +80,7 @@ def blend(background, foreground, mask):
     return blended_image
 
 
+NUMBER_OF_LINES = 10
 def create_fooling_pattern(size, param):
     """
     Generates a square fooling pattern according to the designated parameters
@@ -88,10 +89,24 @@ def create_fooling_pattern(size, param):
     :return: the fooling pattern (not masked yet)
     """
 
-    fooling_pattern = np.zeros((size, size, 3), dtype=np.uint8)
+    fooling_pattern = np.zeros((size, size / 2, 3), dtype=np.uint8)
 
     # param0,1,2 is the background color
     cv2.rectangle(fooling_pattern, (0, 0), (size, size), color=(param[0], param[1], param[2]),
                   thickness=cv2.cv.CV_FILLED)
 
-    return fooling_pattern
+    # Create 100 lines
+    for i in range(0, NUMBER_OF_LINES):
+        pt1 = (int(round(param[8 * i + 0 + 3])), int(round(param[8 * i + 1 + 3])))
+        pt2 = (int(round(param[8 * i + 2 + 3])), int(round(param[8 * i + 3 + 3])))
+        color = (param[8 * i + 4 + 3], param[8 * i + 5 + 3], param[8 * i + 6 + 3])
+        cv2.line(fooling_pattern, pt1, pt2, color, thickness=int(round(param[8 * i + 7 + 3])), lineType=cv2.CV_AA,
+                 shift=0)
+
+    # Now mirror it to the other side of the reulsitng image
+    flipped_pattern = cv2.flip(fooling_pattern, 1)
+    result_image = np.zeros((size, size, 3), dtype=np.uint8)
+    result_image[0:size, 0:(size / 2), ...] = fooling_pattern
+    result_image[0:size, (size / 2):(size), ...] = flipped_pattern
+
+    return result_image
