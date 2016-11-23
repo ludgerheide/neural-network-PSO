@@ -58,6 +58,7 @@ class NeuralNetworkTools:
     def calculate_likenesses(self, sources, targets, mask, fooling_pattern):
         """
         Calculates how close the images are to each other for the face recognition DNN
+        :param fooling_pattern: The fooling pattern that is overliad on the source images
         :param sources: Source images (they get masked)
         :param targets: Target images
         :param mask: The mask

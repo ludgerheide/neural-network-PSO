@@ -8,5 +8,5 @@ def load_key_from_config(key):
     :return:
     """
     json_data = open('config.json').read()
-    dict = json.loads(json_data)
-    return dict[key]
+    config_dict = json.loads(json_data)
+    return config_dict[key]

@@ -45,12 +45,12 @@ def optimization_function(generator_parameters):
     :param generator_parameters:
     :return: Avergae likeness (Standard deviation is ignored)
     """
-    fooling_pattern = fooling_generator(neural_network_tools.IMAGE_DIM, generator_parameters)
+    local_fooling_pattern = fooling_generator(neural_network_tools.IMAGE_DIM, generator_parameters)
 
-    results = nn.calculate_likenesses(source_images, target_images, mask, fooling_pattern)
+    results = nn.calculate_likenesses(source_images, target_images, mask, local_fooling_pattern)
 
     global optimization_counter
-    optimization_counter = optimization_counter + 1
+    optimization_counter += 1
     run_time = time.time() - optimization_start
     time_remaining = (run_time / optimization_counter) * (number_of_particles * (number_of_iterations + 1)) - run_time
     print('Optimization run {:5d} of {}, optimizing for {:8.1f} seconds, estimated time remaing {:8.1f} seconds'.format(
@@ -60,7 +60,7 @@ def optimization_function(generator_parameters):
 
 print("Startup took {:.1f} seconds.".format(time.time() - start))
 xopt, fopt = pso(optimization_function, lower_bounds, upper_bounds, debug=False, maxiter=number_of_iterations,
-                 swarmsize=number_of_particles, minfunc=1e-3, phig=2.0, phip=2.0 )
+                 swarmsize=number_of_particles, minfunc=1e-3, phig=2.0, phip=2.0)
 
 print("Best:" + str(fopt))
 

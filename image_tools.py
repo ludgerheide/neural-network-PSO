@@ -81,6 +81,8 @@ def blend(background, foreground, mask):
 
 
 NUMBER_OF_LINES = 10
+
+
 def create_fooling_pattern(size, param):
     """
     Generates a square fooling pattern according to the designated parameters
@@ -107,7 +109,7 @@ def create_fooling_pattern(size, param):
     flipped_pattern = cv2.flip(fooling_pattern, 1)
     result_image = np.zeros((size, size, 3), dtype=np.uint8)
     result_image[0:size, 0:(size / 2), ...] = fooling_pattern
-    result_image[0:size, (size / 2):(size), ...] = flipped_pattern
+    result_image[0:size, (size / 2):size, ...] = flipped_pattern
 
     return result_image
 
@@ -134,4 +136,4 @@ def create_fooling_pattern_bounds():
         upper_params_bound[8 * i + 6 + 3] = 255  # r
         upper_params_bound[8 * i + 7 + 3] = 4  # width (int)
 
-    return (lower_params_bound, upper_params_bound)
+    return lower_params_bound, upper_params_bound
