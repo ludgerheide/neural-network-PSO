@@ -20,6 +20,7 @@ import numpy as np
 
 import openface
 
+import image_tools
 import tools
 
 IMAGE_DIM = 96
@@ -53,6 +54,24 @@ class NeuralNetworkTools:
 
         d = rep1 - rep2
         return np.dot(d, d)
+
+    def calculate_likenesses(self, sources, targets, mask, fooling_pattern):
+        """
+        Calculates how close the images are to each other for the face recognition DNN
+        :param sources: Source images (they get masked)
+        :param targets: Target images
+        :param mask: The mask
+        :return: a number between 0 (same image) and a high value (~2) for different faces
+        """
+        results = list()
+
+        for target_image in targets:
+            for source_image in sources:
+                blended_image = image_tools.blend(source_image, fooling_pattern, mask)
+                result = self.calculate_likeness(target_image, blended_image)
+                results.append(result)
+
+        return results
 
     def align_face(self, img):
         """

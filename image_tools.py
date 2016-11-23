@@ -110,3 +110,28 @@ def create_fooling_pattern(size, param):
     result_image[0:size, (size / 2):(size), ...] = flipped_pattern
 
     return result_image
+
+
+def create_fooling_pattern_bounds():
+    """
+    Returns a 2-Array tuple containing the upper and lower bounds for create_fooling_pattern
+    :return: a 2-Array tuple containing the upper and lower bounds for create_fooling_pattern
+    """
+
+    lower_params_bound = np.zeros(3 + 8 * NUMBER_OF_LINES, dtype=float)
+
+    upper_params_bound = np.zeros(3 + 8 * NUMBER_OF_LINES, dtype=float)
+    upper_params_bound[0] = 255
+    upper_params_bound[1] = 255
+    upper_params_bound[2] = 255
+    for i in range(0, NUMBER_OF_LINES):
+        upper_params_bound[8 * i + 0 + 3] = 48  # pt1x
+        upper_params_bound[8 * i + 1 + 3] = 48  # pt1y
+        upper_params_bound[8 * i + 2 + 3] = 48  # pt2x
+        upper_params_bound[8 * i + 3 + 3] = 48  # pt2y
+        upper_params_bound[8 * i + 4 + 3] = 255  # g
+        upper_params_bound[8 * i + 5 + 3] = 255  # b
+        upper_params_bound[8 * i + 6 + 3] = 255  # r
+        upper_params_bound[8 * i + 7 + 3] = 4  # width (int)
+
+    return (lower_params_bound, upper_params_bound)
