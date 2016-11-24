@@ -63,7 +63,7 @@ def blend(background, foreground, mask):
     return blended_image
 
 
-NUMBER_OF_LINES = 20
+NUMBER_OF_LINES = 10
 
 
 def create_fooling_pattern(size, param):
@@ -131,7 +131,7 @@ def create_fooling_pattern_bounds():
 
     # Append blur mins/maxes
     lower_params_bound[len(lower_params_bound) - 1] = 0  # blur min
-    upper_params_bound[len(upper_params_bound) - 1] = 4  # blur max
+    upper_params_bound[len(upper_params_bound) - 1] = 3  # blur max
 
     return lower_params_bound, upper_params_bound
 
