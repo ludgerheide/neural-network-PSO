@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import time
 
@@ -8,19 +9,27 @@ import neural_network_tools
 
 start = time.time()
 
-# source_paths = {'images/source1.png', 'images/source2.png', 'images/source3.png', 'images/source4.png', 'images/source5.png'}
-source_paths = {'images/source2.png', 'images/source4.png', 'images/source5.png'}
-# target_paths = {'images/target1.png', 'images/target2.png', 'images/target3.png', 'images/target4.png', 'images/target5.png'}
-target_paths = {'images/target1.png', 'images/target2.png', 'images/target5.png'}
+parser = argparse.ArgumentParser()
+parser.add_argument('--particles', type=int,
+                    help="Number of particles in the particle swarm optimization.\nLinear impact on computing time.",
+                    default=100)
+parser.add_argument('--iterations', type=int,
+                    help="Number of iterations of the optimization.\n Linear impact on computing time.", default=10)
+parser.add_argument('--images', type=int, help="Number of images to compare.\nQUADRATIC impact on computing time.",
+                    default=1)
+args = parser.parse_args()
+
+source_paths = ['images/source2.png', 'images/source4.png', 'images/source5.png', 'images/source1.png',
+                'images/source3.png']
+target_paths = ['images/target1.png', 'images/target2.png', 'images/target5.png', 'images/target3.png',
+                'images/target4.png']
 mask_path = 'images/barMask.png'
 
 source_images = list()
-for source_path in source_paths:
-    source_images.append(image_tools.load_image(source_path, 3))
-
 target_images = list()
-for target_path in target_paths:
-    target_images.append(image_tools.load_image(target_path, 3))
+for i in range(0, args.images):
+    source_images.append(image_tools.load_image(source_paths[i], 3))
+    target_images.append(image_tools.load_image(target_paths[i], 3))
 
 mask = image_tools.load_image(mask_path, 1)
 
@@ -35,8 +44,8 @@ fooling_generator = image_tools.create_fooling_pattern
 optimization_counter = 0
 optimization_start = time.time()
 
-number_of_iterations = 2
-number_of_particles = 10
+number_of_iterations = args.iterations
+number_of_particles = args.particles
 
 
 def optimization_function(generator_parameters):
@@ -62,18 +71,27 @@ print("Startup took {:.1f} seconds.".format(time.time() - start))
 xopt, fopt = pso(optimization_function, lower_bounds, upper_bounds, debug=False, maxiter=number_of_iterations,
                  swarmsize=number_of_particles, minfunc=1e-3, phig=2.0, phip=2.0)
 
-print("Best:" + str(fopt))
-
-empty_mask = np.multiply(255,
+empty_mask = np.multiply(0,
                          np.ones((neural_network_tools.IMAGE_DIM, neural_network_tools.IMAGE_DIM, 1), dtype=np.uint8))
 empty_pattern = np.multiply(255, np.ones((neural_network_tools.IMAGE_DIM, neural_network_tools.IMAGE_DIM, 3),
                                          dtype=np.uint8))
+
+likenesses_source_source = nn.calculate_likenesses(target_images, target_images, empty_mask, empty_pattern)
+print("Likenesses between target and itself:\n" + str(likenesses_source_source))
+print("Mean: " + str(np.mean(likenesses_source_source)) + ", Standard deviation: " + str(
+    np.std(likenesses_source_source)) + "\n")
+
 likenesses = nn.calculate_likenesses(source_images, target_images, empty_mask, empty_pattern)
-print("Likenesses between target and source without fooling pattern: " + str(likenesses))
-print("Mean: " + str(np.mean(likenesses)) + ", Standard deviation: " + str(np.std(likenesses)))
+print("Likenesses between target and source without fooling pattern:\n" + str(likenesses))
+print("Mean: " + str(np.mean(likenesses)) + ", Standard deviation: " + str(np.std(likenesses)) + "\n")
 
 fooling_pattern = fooling_generator(neural_network_tools.IMAGE_DIM, xopt)
 image_tools.save_image(fooling_pattern, 'images/fooling_pattern' + str(fopt) + '.png')
+
+likenesses_fooled_source_target = nn.calculate_likenesses(source_images, target_images, mask, fooling_pattern)
+print("Likenesses between target and source with fooling pattern:\n" + str(likenesses_fooled_source_target))
+print("Mean: " + str(np.mean(likenesses_fooled_source_target)) + ", Standard deviation: " + str(
+    np.std(likenesses_fooled_source_target)) + "\n")
 
 for i in range(0, len(source_images)):
     source_img = source_images.pop()
