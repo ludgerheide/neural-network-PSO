@@ -94,16 +94,23 @@ def create_fooling_pattern(size, param):
     fooling_pattern = np.zeros((size, size / 2, 3), dtype=np.uint8)
 
     # param0,1,2 is the background color
-    cv2.rectangle(fooling_pattern, (0, 0), (size, size), color=(param[0], param[1], param[2]),
-                  thickness=cv2.cv.CV_FILLED)
+    if is_cv2():
+        cv2.rectangle(fooling_pattern, (0, 0), (size, size), color=(param[0], param[1], param[2]),
+                      thickness=cv2.cv.CV_FILLED)
+    else:
+        cv2.rectangle(fooling_pattern, (0, 0), (size, size), color=(param[0], param[1], param[2]), thickness=-1)
 
     # Create 100 lines
     for i in range(0, NUMBER_OF_LINES):
         pt1 = (int(round(param[8 * i + 0 + 3])), int(round(param[8 * i + 1 + 3])))
         pt2 = (int(round(param[8 * i + 2 + 3])), int(round(param[8 * i + 3 + 3])))
         color = (param[8 * i + 4 + 3], param[8 * i + 5 + 3], param[8 * i + 6 + 3])
-        cv2.line(fooling_pattern, pt1, pt2, color, thickness=int(round(param[8 * i + 7 + 3])), lineType=cv2.CV_AA,
-                 shift=0)
+        if is_cv2():
+            cv2.line(fooling_pattern, pt1, pt2, color, thickness=int(round(param[8 * i + 7 + 3])), lineType=cv2.CV_AA,
+                     shift=0)
+        else:
+            cv2.line(fooling_pattern, pt1, pt2, color, thickness=int(round(param[8 * i + 7 + 3])), lineType=cv2.LINE_AA,
+                     shift=0)
 
     # Now mirror it to the other side of the reulsitng image
     flipped_pattern = cv2.flip(fooling_pattern, 1)
@@ -137,3 +144,25 @@ def create_fooling_pattern_bounds():
         upper_params_bound[8 * i + 7 + 3] = 4  # width (int)
 
     return lower_params_bound, upper_params_bound
+
+
+def is_cv2():
+    # if we are using OpenCV 2, then our cv2.__version__ will start
+    # with '2.'
+    return check_opencv_version("2.")
+
+
+def is_cv3():
+    # if we are using OpenCV 3.X, then our cv2.__version__ will start
+    # with '3.'
+    return check_opencv_version("3.")
+
+
+def check_opencv_version(major, lib=None):
+    # if the supplied library is None, import OpenCV
+    if lib is None:
+        import cv2 as lib
+
+    # return whether or not the current OpenCV version matches the
+    # major version number
+    return lib.__version__.startswith(major)
