@@ -60,27 +60,10 @@ def blend(background, foreground, mask):
             np.multiply(np.divide(mask, 255.0), foreground[..., dimension]) \
             + np.multiply(np.divide((255 - mask), 255.0), background[..., dimension])
 
-        # # Save the dimensions and reshape to arrays
-        # old_shape = background.shape
-        # background.shape = (old_shape[0] * old_shape[1], 1, old_shape[2])
-        # foreground.shape = (old_shape[0] * old_shape[1], 1, old_shape[2])
-        # mask.shape = (old_shape[0] * old_shape[1], 1, 1)
-        #
-        # #Create the array for the new img
-        # blended_image = np.zeros(background.shape, dtype=np.uint8)
-        #
-        # # Iterate over the array
-        # for dimension in range(0, old_shape[2]):
-        #     for pixel in range(0, old_shape[0] * old_shape[1]):
-        #         blended_image[pixel, 0, dimension] = \
-        #             (mask[pixel, 0, 0] / 255.0) * foreground[pixel, 0, dimension]
-        #         + (255 - mask[pixel, 0, 0] / 255.0) * background[pixel, 0, dimension]
-        #
-        # blended_image.shape = old_shape
     return blended_image
 
 
-NUMBER_OF_LINES = 10
+NUMBER_OF_LINES = 20
 
 
 def create_fooling_pattern(size, param):
@@ -100,7 +83,7 @@ def create_fooling_pattern(size, param):
     else:
         cv2.rectangle(fooling_pattern, (0, 0), (size, size), color=(param[0], param[1], param[2]), thickness=-1)
 
-    # Create 100 lines
+    # Create NUMBER_OF_LINES lines
     for i in range(0, NUMBER_OF_LINES):
         pt1 = (int(round(param[8 * i + 0 + 3])), int(round(param[8 * i + 1 + 3])))
         pt2 = (int(round(param[8 * i + 2 + 3])), int(round(param[8 * i + 3 + 3])))
@@ -111,6 +94,10 @@ def create_fooling_pattern(size, param):
         else:
             cv2.line(fooling_pattern, pt1, pt2, color, thickness=int(round(param[8 * i + 7 + 3])), lineType=cv2.LINE_AA,
                      shift=0)
+
+    # Blur it
+    blur_value = int(round(param[len(param) - 1])) * 2 + 1  # Must be an odd integer
+    fooling_pattern = cv2.blur(fooling_pattern, (blur_value, blur_value))
 
     # Now mirror it to the other side of the reulsitng image
     flipped_pattern = cv2.flip(fooling_pattern, 1)
@@ -127,9 +114,8 @@ def create_fooling_pattern_bounds():
     :return: a 2-Array tuple containing the upper and lower bounds for create_fooling_pattern
     """
 
-    lower_params_bound = np.zeros(3 + 8 * NUMBER_OF_LINES, dtype=float)
-
-    upper_params_bound = np.zeros(3 + 8 * NUMBER_OF_LINES, dtype=float)
+    lower_params_bound = np.zeros(1 + 3 + 8 * NUMBER_OF_LINES, dtype=float)
+    upper_params_bound = np.zeros(1 + 3 + 8 * NUMBER_OF_LINES, dtype=float)
     upper_params_bound[0] = 255
     upper_params_bound[1] = 255
     upper_params_bound[2] = 255
@@ -142,6 +128,10 @@ def create_fooling_pattern_bounds():
         upper_params_bound[8 * i + 5 + 3] = 255  # b
         upper_params_bound[8 * i + 6 + 3] = 255  # r
         upper_params_bound[8 * i + 7 + 3] = 4  # width (int)
+
+    # Append blur mins/maxes
+    lower_params_bound[len(lower_params_bound) - 1] = 0  # blur min
+    upper_params_bound[len(upper_params_bound) - 1] = 10  # blur max
 
     return lower_params_bound, upper_params_bound
 
