@@ -1,4 +1,5 @@
 {
-  "networkModelPath": "/home/ludger/openface/models/openface/nn4.small2.v1.t7",
-  "dlibFacePredictorPath": "/home/ludger/openface/models/dlib/shape_predictor_68_face_landmarks.dat"
+  "_comment": "Please edit this file to point to the correct files and copy it to config.json",
+  "networkModelPath": "/home/imageprocessing/Downloads/openface/models/openface/nn4.small2.v1.t7",
+  "dlibFacePredictorPath": "/home/imageprocessing/Downloads/openface/models/dlib/shape_predictor_68_face_landmarks.dat"
 }

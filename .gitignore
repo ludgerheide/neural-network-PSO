@@ -45,3 +45,4 @@ images/result*.png
 images/fooling_patter*.png
 *.pyc
 .DS_Store
+config.json
