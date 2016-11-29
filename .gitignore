@@ -43,6 +43,8 @@ fabric.properties
 
 images/result*.png
 images/fooling_patter*.png
+images/dodging*.png
+images/fooling*.png
 *.pyc
 .DS_Store
 config.json
